@@ -1,6 +1,6 @@
-// index.js
+// index.js (corrected)
 const express = require('express');
-var app = express();
+const app = express();
 const PORT = 3000;
 
 app.get('/', (req, res) => {
@@ -8,5 +8,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`);
 });
