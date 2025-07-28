@@ -1,0 +1,51 @@
+name: Ensemble Quality Gate
+
+# This workflow runs on every push to the main branch
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # Job 1: Checks for linting and formatting issues
+  lint-and-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Prettier Check
+        run: npm run format-check
+
+  # Job 2: Scans for security vulnerabilities
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          # The secret token we configured in Step 3
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  # Job 3: The gatekeeper that depends on the others
+  build-gate:
+    runs-on: ubuntu-latest
+    # This is the core of the ensemble. This job will ONLY run
+    # if both 'lint-and-format' and 'security-scan' succeed.
+    needs: [lint-and-format, security-scan]
+    steps:
+      - name: All checks passed
+        run: echo "✅ Quality Gate Passed! Code is ready to be built."
